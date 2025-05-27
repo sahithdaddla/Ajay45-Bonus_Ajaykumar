@@ -207,7 +207,7 @@ app.get('/api/bonus/pdf/:id', async (req, res) => {
 
     doc.fillColor('#444444')
        .fontSize(20)
-       .text('ABC COMPANY', 110, 50)
+       .text('AStrolite Tech Solutions', 110, 50)
        .fontSize(10)
        .text('Hyderabad Branch', 110, 75)
        .moveDown();
