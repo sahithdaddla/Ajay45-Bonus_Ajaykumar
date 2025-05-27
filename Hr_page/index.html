@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Bonus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fa;
+            color: #2d3748;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .banner {
+            background: linear-gradient(135deg, #5f1aff, #b74cd7);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 1200px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .banner h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+        }
+        .form-container, .table-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #6b46c1;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(107, 70, 193, 0.2);
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .error-message {
+            color: #f56565;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .form-buttons button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .submit-btn {
+            background: #6b46c1;
+            color: white;
+        }
+        .submit-btn:hover:not(:disabled) {
+            background: #553c9a;
+            transform: translateY(-2px);
+        }
+        .submit-btn:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+        .reset-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        .reset-btn:hover {
+            background: #cbd5e0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .view-btn, .download-btn {
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+        }
+        .view-btn {
+            background: #2b6cb0;
+        }
+        .view-btn:hover {
+            background: #2c5282;
+        }
+        .download-btn {
+            background: #38a169;
+        }
+        .download-btn:hover {
+            background: #2f855a;
+        }
+        .no-bonuses {
+            text-align: center;
+            padding: 30px;
+            color: #718096;
+            font-style: italic;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #718096;
+            transition: color 0.3s;
+        }
+        .close-btn:hover {
+            color: #e53e3e;
+        }
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        .modal-row {
+            display: flex;
+            margin-bottom: 12px;
+        }
+        .modal-label {
+            font-weight: 500;
+            color: #4a5568;
+            width: 150px;
+            flex-shrink: 0;
+        }
+        .modal-value {
+            color: #2d3748;
+            flex: 1;
+        }
+        .highlight {
+            font-weight: 600;
+            color: #5f1aff;
+        }
+        .invalid-data {
+            color: #f56565;
+            font-style: italic;
+        }
+        @media (max-width: 768px) {
+            .banner h1 {
+                font-size: 2rem;
+            }
+            .form-container, .table-container {
+                padding: 20px;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+            .modal-row {
+                flex-direction: column;
+            }
+            .modal-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            .action-buttons {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .view-btn, .download-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <h1>HR Bonus Page</h1>
+    </div>
+    <div class="form-container">
+        <form id="bonus-form" novalidate>
+            <div class="form-group">
+                <label for="employeeId">Employee ID</label>
+                <input type="text" id="employeeId" placeholder="ATS0001" required>
+                <div class="error-message" id="error-id"></div>
+            </div>
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" placeholder="John Doe" required>
+                <div class="error-message" id="error-name"></div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email ID</label>
+                <input type="email" id="email" placeholder="john.doe@example.com" required>
+                <div class="error-message" id="error-email"></div>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Create a password" required>
+                <div class="error-message" id="error-password"></div>
+            </div>
+            <div class="form-group">
+                <label for="bonus-amount">Bonus Amount (₹)</label>
+                <input type="number" id="bonus-amount" placeholder="5000" min="1000" max="100000" step="100" required>
+                <div class="error-message" id="error-amount"></div>
+            </div>
+            <div class="form-group">
+                <label for="month">Bonus Month</label>
+                <input type="month" id="month" min="2021-01" required>
+                <div class="error-message" id="error-month"></div>
+            </div>
+            <div class="form-group">
+                <label for="reason">Reason for Bonus</label>
+                <textarea id="reason" placeholder="Enter the reason for bonus" required></textarea>
+                <div class="error-message" id="error-reason"></div>
+            </div>
+            <div class="form-buttons">
+                <button type="reset" class="reset-btn">Reset</button>
+                <button type="submit" id="submit-btn" class="submit-btn">Assign Bonus</button>
+            </div>
+        </form>
+    </div>
+    <div class="table-container" id="submitted-bonuses">
+        <h2>Submitted Bonuses</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Bonus Amount</th>
+                    <th>Month</th>
+                    <th>Reason</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="bonus-table-body"></tbody>
+        </table>
+    </div>
+
+    <!-- Bonus Details Modal -->
+    <div class="modal" id="modal-bonus">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Bonus Details</h3>
+                <button class="close-btn" id="modal-close-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-row">
+                    <div class="modal-label">Employee ID:</div>
+                    <div class="modal-value" id="modal-id"></div>
+                </div>
+                <div class="modal-row">
+                    <div class="modal-label">Name:</div>
+                    <div class="modal-value" id="modal-name"></div>
+                </div>
+                <div class="modal-row">
+                    <div class="modal-label">Email:</div>
+                    <div class="modal-value" id="modal-email"></div>
+                </div>
+                <div class="modal-row">
+                    <div class="modal-label">Bonus Amount:</div>
+                    <div class="modal-value highlight" id="modal-amount"></div>
+                </div>
+                <div class="modal-row">
+                    <div class="modal-label">Month:</div>
+                    <div class="modal-value" id="modal-month"></div>
+                </div>
+                <div class="modal-row">
+                    <div class="modal-label">Reason:</div>
+                    <div class="modal-value" id="modal-reason"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let validationTimeout;
+        document.addEventListener('DOMContentLoaded', () => {
+            setupValidations();
+            document.getElementById('bonus-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                submitBonus();
+            });
+            document.getElementById('modal-close-btn').addEventListener('click', () => {
+                document.getElementById('modal-bonus').style.display = 'none';
+            });
+            fetchBonuses();
+        });
+
+        function setupValidations() {
+            const inputs = [
+                { id: 'employeeId', errorId: 'error-id', validate: validateEmployeeId },
+                { id: 'name', errorId: 'error-name', validate: validateName },
+                { id: 'email', errorId: 'error-email', validate: validateEmail },
+                { id: 'password', errorId: 'error-password', validate: validatePassword },
+                { id: 'bonus-amount', errorId: 'error-amount', validate: validateBonusAmount },
+                { id: 'month', errorId: 'error-month', validate: validateMonth },
+                { id: 'reason', errorId: 'error-reason', validate: validateReason }
+            ];
+            
+            inputs.forEach(({ id, validate }) => {
+                const input = document.getElementById(id);
+                input.addEventListener('input', () => {
+                    clearTimeout(validationTimeout);
+                    validationTimeout = setTimeout(validate, 500);
+                });
+                input.addEventListener('blur', validate);
+            });
+        }
+
+        document.querySelectorAll('input, textarea').forEach(input => {
+            input.addEventListener('blur', function() {
+                this.value = this.value.trim();
+            });
+        });
+
+        function validateEmployeeId() {
+            const input = document.getElementById('employeeId');
+            const error = document.getElementById('error-id');
+            const value = input.value.trim().toUpperCase();
+            const regex = /^ATS0\d{3}$/;
+            
+            if (!value) {
+                error.textContent = 'Employee ID is required.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            if (!regex.test(value)) {
+                error.textContent = 'Invalid format. Must be ATS followed by 4 digits (e.g., ATS0001).';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            error.style.display = 'none';
+            input.value = value;
+            return true;
+        }
+
+        function validateName() {
+            const input = document.getElementById('name');
+            const error = document.getElementById('error-name');
+            const value = input.value.trim();
+            const regex = /^[A-Za-z]+(\s[A-Za-z]+)*$/;
+            
+            if (!value) {
+                error.textContent = 'Full name is required.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            if (value.length < 3 || value.length > 100) {
+                error.textContent = 'Name must be 3-100 characters.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            if (!regex.test(value)) {
+                error.textContent = 'Only letters and single spaces between names allowed.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            error.style.display = 'none';
+            input.value = value;
+            return true;
+        }
+
+        function validateEmail() {
+            const input = document.getElementById('email');
+            const error = document.getElementById('error-email');
+            const value = input.value.trim();
+            const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            
+            if (!value) {
+                error.textContent = 'Email is required.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            if (value.length > 50) {
+                error.textContent = 'Email must be 50 characters or less.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            if (!regex.test(value)) {
+                error.textContent = 'Please enter a valid email address.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            error.style.display = 'none';
+            input.value = value;
+            return true;
+        }
+
+        function validatePassword() {
+            const input = document.getElementById('password');
+            const error = document.getElementById('error-password');
+            const value = input.value;
+            
+            if (!value) {
+                error.textContent = 'Password is required.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            if (value.length < 8 || value.length > 30) {
+                error.textContent = 'Password must be 8-30 characters.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            if (/\s/.test(value)) {
+                error.textContent = 'Password cannot contain spaces.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            if (!/[A-Za-z]/.test(value) || !/[0-9]/.test(value)) {
+                error.textContent = 'Password must contain letters and numbers.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            error.style.display = 'none';
+            return true;
+        }
+
+        function validateBonusAmount() {
+            const input = document.getElementById('bonus-amount');
+            const error = document.getElementById('error-amount');
+            const value = parseFloat(input.value);
+            
+            if (!input.value) {
+                error.textContent = 'Bonus amount is required.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            if (isNaN(value) || value < 1000 || value > 100000) {
+                error.textContent = 'Bonus must be between ₹1,000 and ₹100,000.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            error.style.display = 'none';
+            return true;
+        }
+
+        function validateMonth() {
+            const input = document.getElementById('month');
+            const error = document.getElementById('error-month');
+            const value = input.value;
+            
+            if (!value) {
+                error.textContent = 'Month is required.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            const [year, month] = value.split('-').map(Number);
+            const now = new Date();
+            const maxDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            const selectedDate = new Date(year, month - 1, 1);
+            
+            if (selectedDate < new Date(2021, 0, 1) || selectedDate >= maxDate) {
+                error.textContent = 'Month must be between Jan 2021 and last month.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            error.style.display = 'none';
+            return true;
+        }
+
+        function validateReason() {
+            const input = document.getElementById('reason');
+            const error = document.getElementById('error-reason');
+            const value = input.value;
+            
+            if (!value) {
+                error.textContent = 'Reason is required.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            if (value.length < 10 || value.length > 500) {
+                error.textContent = 'Reason must be 10-500 characters.';
+                error.style.display = 'block';
+                return false;
+            }
+            
+            error.style.display = 'none';
+            return true;
+        }
+
+        function validateForm() {
+            return [
+                validateEmployeeId(),
+                validateName(),
+                validateEmail(),
+                validatePassword(),
+                validateBonusAmount(),
+                validateMonth(),
+                validateReason()
+            ].every(valid => valid);
+        }
+
+        async function submitBonus() {
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            
+            if (!validateForm()) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Assign Bonus';
+                alert('Please correct the errors in the form.');
+                return;
+            }
+
+            const data = {
+                employeeId: document.getElementById('employeeId').value.trim().toUpperCase(),
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value,
+                bonusAmount: parseFloat(document.getElementById('bonus-amount').value),
+                month: document.getElementById('month').value,
+                reason: document.getElementById('reason').value.trim()
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/hr/bonus', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('Bonus assigned successfully!');
+                    document.getElementById('bonus-form').reset();
+                    fetchBonuses();
+                } else {
+                    alert(result.message || 'Error assigning bonus. Please try again.');
+                }
+            } catch (err) {
+                console.error('Error submitting bonus:', err);
+                alert('Error connecting to server. Please try again later.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Assign Bonus';
+            }
+        }
+
+        async function fetchBonuses() {
+            const tbody = document.getElementById('bonus-table-body');
+            tbody.innerHTML = '<tr><td colspan="7">Loading bonuses...</td></tr>';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/hr/bonuses');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const bonuses = await response.json();
+                displayBonuses(bonuses);
+            } catch (err) {
+                console.error('Error fetching bonuses:', err);
+                tbody.innerHTML = '<tr><td colspan="7">Unable to load bonuses. Please try again later.</td></tr>';
+            }
+        }
+
+        function displayBonuses(bonuses) {
+            const tbody = document.getElementById('bonus-table-body');
+            tbody.innerHTML = '';
+            
+            if (!bonuses || bonuses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-bonuses">No bonuses found.</td></tr>';
+                return;
+            }
+
+            bonuses.forEach(bonus => {
+                const row = document.createElement('tr');
+                const monthDisplay = bonus.month ? new Date(bonus.month + '-01').toLocaleString('default', { month: 'long', year: 'numeric' }) : 'N/A';
+                const bonusAmount = parseFloat(bonus.bonusAmount) || 0;
+                const employeeId = bonus.employeeId && bonus.employeeId.match(/^ATS0\d{3}$/i) ? bonus.employeeId : 'N/A (Invalid)';
+                const isInvalid = !bonus.employeeId || bonus.employeeId === '' || bonusAmount < 1000;
+
+                row.innerHTML = `
+                    <td class="${isInvalid ? 'invalid-data' : ''}">${escapeHtml(employeeId)}</td>
+                    <td>${escapeHtml(bonus.name || 'N/A')}</td>
+                    <td>${escapeHtml(bonus.email || 'N/A')}</td>
+                    <td class="${isInvalid ? 'invalid-data' : ''}">₹${bonusAmount.toFixed(2)}</td>
+                    <td>${monthDisplay}</td>
+                    <td>${truncateText(escapeHtml(bonus.reason || 'N/A'), 30)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="view-btn" data-bonus='${JSON.stringify(bonus)}'>View</button>
+                            <button class="download-btn" data-bonus-id="${bonus.id}" ${isInvalid ? 'disabled' : ''}>Download</button>
+                        </div>
+                    </td>
+                `;
+                
+                if (isInvalid) {
+                    console.warn(`Invalid bonus data: ID=${bonus.id}, employeeId=${bonus.employeeId}, bonusAmount=${bonus.bonusAmount}, email=${bonus.email}`);
+                }
+
+                row.querySelector('.view-btn').addEventListener('click', () => {
+                    viewBonus(JSON.parse(row.querySelector('.view-btn').dataset.bonus));
+                });
+                
+                if (!isInvalid) {
+                    row.querySelector('.download-btn').addEventListener('click', () => {
+                        downloadBonus(bonus.id);
+                    });
+                }
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function viewBonus(bonus) {
+            const modal = document.getElementById('modal-bonus');
+            const monthDisplay = bonus.month ? new Date(bonus.month + '-01').toLocaleString('default', { month: 'long', year: 'numeric' }) : 'N/A';
+            const bonusAmount = parseFloat(bonus.bonusAmount) || 0;
+            const employeeId = bonus.employeeId && bonus.employeeId.match(/^ATS0\d{3}$/i) ? bonus.employeeId : 'N/A (Invalid)';
+
+            document.getElementById('modal-id').textContent = employeeId;
+            document.getElementById('modal-name').textContent = bonus.name || 'N/A';
+            document.getElementById('modal-email').textContent = bonus.email || 'N/A';
+            document.getElementById('modal-amount').textContent = `₹${bonusAmount.toFixed(2)}`;
+            document.getElementById('modal-month').textContent = monthDisplay;
+            document.getElementById('modal-reason').textContent = bonus.reason || 'N/A';
+
+            modal.style.display = 'flex';
+        }
+
+        function downloadBonus(bonusId) {
+            window.location.href = `http://localhost:3000/api/bonus/pdf/${bonusId}`;
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function truncateText(text, maxLength) {
+            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+        }
+    </script>
+</body>
+</html>
