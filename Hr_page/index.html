@@ -3,747 +3,939 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Bonus</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <title>HR Bonus Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4bb543;
+            --danger-color: #e63946;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f5f7fa;
-            color: #2d3748;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            background-color: #ffffff;
+            color: var(--dark-color);
+            line-height: 1.6;
         }
-        .banner {
-            background: linear-gradient(135deg, #5f1aff, #b74cd7);
-            color: white;
-            text-align: center;
-            padding: 20px;
-            border-radius: 12px;
-            width: 100%;
+
+        .container {
             max-width: 1200px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            margin: 0 auto;
+            padding: 20px;
         }
-        .banner h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 2.5rem;
-        }
-        .form-container, .table-container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            width: 100%;
-            max-width: 1000px;
-            margin-bottom: 30px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #4a5568;
-        }
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            border-color: #6b46c1;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(107, 70, 193, 0.2);
-        }
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        .error-message {
-            color: #f56565;
-            font-size: 0.85rem;
-            margin-top: 5px;
-            display: none;
-        }
-        .form-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 25px;
-        }
-        .form-buttons button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        .submit-btn {
-            background: #6b46c1;
-            color: white;
-        }
-        .submit-btn:hover:not(:disabled) {
-            background: #553c9a;
-            transform: translateY(-2px);
-        }
-        .submit-btn:disabled {
-            background: #a0aec0;
-            cursor: not-allowed;
-        }
-        .reset-btn {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-        .reset-btn:hover {
-            background: #cbd5e0;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        th {
-            background: #f7fafc;
-            font-weight: 600;
-            color: #4a5568;
-        }
-        tr:hover {
-            background-color: #f8f9fa;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-        }
-        .view-btn, .download-btn {
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s;
-            font-size: 0.9rem;
-        }
-        .view-btn {
-            background: #2b6cb0;
-        }
-        .view-btn:hover {
-            background: #2c5282;
-        }
-        .download-btn {
-            background: #38a169;
-        }
-        .download-btn:hover {
-            background: #2f855a;
-        }
-        .no-bonuses {
+
+        header {
+            position: relative;
             text-align: center;
-            padding: 30px;
-            color: #718096;
-            font-style: italic;
+            height: 110px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #f8f9fa;
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
         }
-        .modal {
-            display: none;
-            position: fixed;
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header p {
+            font-weight: 300;
+            font-size: 1.1rem;
+            margin-top: 15px;
+            max-width: 700px;
+            opacity: 0.9;
+            z-index: 2;
+        }
+
+        @keyframes moveCircles {
+            0% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-50%) translateX(-50%); }
+            100% { transform: translateY(0) translateX(0); }
+        }
+
+        .banner-background {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            z-index: 1;
+            overflow: hidden;
         }
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 600px;
-            width: 90%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            position: relative;
+
+        .circle {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: moveCircles 10s infinite linear;
         }
-        .modal-header {
+
+        .circle:nth-child(1) {
+            top: 10%;
+            left: 20%;
+            animation-duration: 8s;
+        }
+
+        .circle:nth-child(2) {
+            top: 50%;
+            left: 70%;
+            animation-duration: 12s;
+        }
+
+        .circle:nth-child(3) {
+            top: 80%;
+            left: 40%;
+            animation-duration: 15s;
+        }
+
+        .tab-navigation {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            justify-content: center;
+            gap: 200px;
             margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #ddd;
         }
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #2d3748;
-        }
-        .close-btn {
+
+        .tab-btn {
+            padding: 12px 24px;
             background: none;
             border: none;
-            font-size: 1.5rem;
             cursor: pointer;
-            color: #718096;
-            transition: color 0.3s;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            transition: var(--transition);
         }
-        .close-btn:hover {
-            color: #e53e3e;
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
         }
-        .modal-body {
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
             margin-bottom: 20px;
         }
-        .modal-row {
-            display: flex;
-            margin-bottom: 12px;
-        }
-        .modal-label {
-            font-weight: 500;
-            color: #4a5568;
-            width: 150px;
-            flex-shrink: 0;
-        }
-        .modal-value {
-            color: #2d3748;
-            flex: 1;
-        }
-        .highlight {
+
+        .card-title {
+            font-size: 20px;
             font-weight: 600;
-            color: #5f1aff;
+            color: var(--primary-color);
+            margin-bottom: 20px;
         }
-        .invalid-data {
-            color: #f56565;
-            font-style: italic;
+
+        .form-group {
+            margin-bottom: 20px;
         }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.2);
+        }
+
+        .invalid-feedback {
+            color: var(--danger-color);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .is-invalid {
+            border-color: var(--danger-color) !important;
+        }
+
+        .is-invalid + .invalid-feedback {
+            display: block;
+        }
+
+        input[type="month"] {
+            cursor: pointer;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table th, .table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .search-filter {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+
+        .search-box input {
+            padding-left: 40px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+        }
+
+        .alert-success i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .no-records {
+            text-align: center;
+            padding: 40px;
+            color: #777;
+        }
+
+        .no-records i {
+            font-size: 50px;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+
+        .pdf-content {
+            font-family: monospace !important;
+            line-height: 1.1;
+        }
+
         @media (max-width: 768px) {
-            .banner h1 {
-                font-size: 2rem;
+            .form-row {
+                grid-template-columns: 1fr;
             }
-            .form-container, .table-container {
-                padding: 20px;
-            }
-            .modal-content {
-                padding: 20px;
-            }
-            .modal-row {
+            .search-filter {
                 flex-direction: column;
             }
-            .modal-label {
-                width: 100%;
-                margin-bottom: 5px;
+            .search-box {
+                max-width: 100%;
             }
-            .action-buttons {
-                flex-direction: column;
-                gap: 5px;
-            }
-            .view-btn, .download-btn {
+            .filter-group {
                 width: 100%;
+                flex-wrap: wrap;
             }
         }
     </style>
 </head>
 <body>
-    <div class="banner">
-        <h1>HR Bonus Page</h1>
-    </div>
-    <div class="form-container">
-        <form id="bonus-form" novalidate>
-            <div class="form-group">
-                <label for="employeeId">Employee ID</label>
-                <input type="text" id="employeeId" placeholder="ATS0001" required>
-                <div class="error-message" id="error-id"></div>
+    <div class="container">
+        <header>
+            <div class="banner-background">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
             </div>
-            <div class="form-group">
-                <label for="name">Full Name</label>
-                <input type="text" id="name" placeholder="John Doe" required>
-                <div class="error-message" id="error-name"></div>
+            <h1>HR Bonus Management</h1>
+            <p>Generate and manage employee bonuses efficiently</p>
+        </header>
+
+        <main>
+            <div class="tab-navigation">
+                <button class="tab-btn active" data-id="generate">Generate Bonus</button>
+                <button class="tab-btn" data-id="details">Bonus History</button>
             </div>
-            <div class="form-group">
-                <label for="email">Email ID</label>
-                <input type="email" id="email" placeholder="john.doe@example.com" required>
-                <div class="error-message" id="error-email"></div>
+
+            <div class="alert-success" id="successMessage">
+                <i class="fas fa-check-circle"></i>
+                <span>Bonus generated successfully!</span>
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Create a password" required>
-                <div class="error-message" id="error-password"></div>
-            </div>
-            <div class="form-group">
-                <label for="bonus-amount">Bonus Amount (₹)</label>
-                <input type="number" id="bonus-amount" placeholder="5000" min="1000" max="100000" step="100" required>
-                <div class="error-message" id="error-amount"></div>
-            </div>
-            <div class="form-group">
-                <label for="month">Bonus Month</label>
-                <input type="month" id="month" min="2021-01" required>
-                <div class="error-message" id="error-month"></div>
-            </div>
-            <div class="form-group">
-                <label for="reason">Reason for Bonus</label>
-                <textarea id="reason" placeholder="Enter the reason for bonus" required></textarea>
-                <div class="error-message" id="error-reason"></div>
-            </div>
-            <div class="form-buttons">
-                <button type="reset" class="reset-btn">Reset</button>
-                <button type="submit" id="submit-btn" class="submit-btn">Assign Bonus</button>
-            </div>
-        </form>
-    </div>
-    <div class="table-container" id="submitted-bonuses">
-        <h2>Submitted Bonuses</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Employee ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Bonus Amount</th>
-                    <th>Month</th>
-                    <th>Reason</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="bonus-table-body"></tbody>
-        </table>
-    </div>
+            <div class="alert-danger" id="errorMessage"></div>
 
-    <!-- Bonus Details Modal -->
-    <div class="modal" id="modal-bonus">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Bonus Details</h3>
-                <button class="close-btn" id="modal-close-btn">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="modal-row">
-                    <div class="modal-label">Employee ID:</div>
-                    <div class="modal-value" id="modal-id"></div>
-                </div>
-                <div class="modal-row">
-                    <div class="modal-label">Name:</div>
-                    <div class="modal-value" id="modal-name"></div>
-                </div>
-                <div class="modal-row">
-                    <div class="modal-label">Email:</div>
-                    <div class="modal-value" id="modal-email"></div>
-                </div>
-                <div class="modal-row">
-                    <div class="modal-label">Bonus Amount:</div>
-                    <div class="modal-value highlight" id="modal-amount"></div>
-                </div>
-                <div class="modal-row">
-                    <div class="modal-label">Month:</div>
-                    <div class="modal-value" id="modal-month"></div>
-                </div>
-                <div class="modal-row">
-                    <div class="modal-label">Reason:</div>
-                    <div class="modal-value" id="modal-reason"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let validationTimeout;
-        document.addEventListener('DOMContentLoaded', () => {
-            setupValidations();
-            document.getElementById('bonus-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                submitBonus();
-            });
-            document.getElementById('modal-close-btn').addEventListener('click', () => {
-                document.getElementById('modal-bonus').style.display = 'none';
-            });
-            fetchBonuses();
-        });
-
-        function setupValidations() {
-            const inputs = [
-                { id: 'employeeId', errorId: 'error-id', validate: validateEmployeeId },
-                { id: 'name', errorId: 'error-name', validate: validateName },
-                { id: 'email', errorId: 'error-email', validate: validateEmail },
-                { id: 'password', errorId: 'error-password', validate: validatePassword },
-                { id: 'bonus-amount', errorId: 'error-amount', validate: validateBonusAmount },
-                { id: 'month', errorId: 'error-month', validate: validateMonth },
-                { id: 'reason', errorId: 'error-reason', validate: validateReason }
-            ];
-            
-            inputs.forEach(({ id, validate }) => {
-                const input = document.getElementById(id);
-                input.addEventListener('input', () => {
-                    clearTimeout(validationTimeout);
-                    validationTimeout = setTimeout(validate, 500);
-                });
-                input.addEventListener('blur', validate);
-            });
-        }
-
-        document.querySelectorAll('input, textarea').forEach(input => {
-            input.addEventListener('blur', function() {
-                this.value = this.value.trim();
-            });
-        });
-
-        function validateEmployeeId() {
-            const input = document.getElementById('employeeId');
-            const error = document.getElementById('error-id');
-            const value = input.value.trim().toUpperCase();
-            const regex = /^ATS0\d{3}$/;
-            
-            if (!value) {
-                error.textContent = 'Employee ID is required.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            if (!regex.test(value)) {
-                error.textContent = 'Invalid format. Must be ATS followed by 4 digits (e.g., ATS0001).';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            error.style.display = 'none';
-            input.value = value;
-            return true;
-        }
-
-        function validateName() {
-            const input = document.getElementById('name');
-            const error = document.getElementById('error-name');
-            const value = input.value.trim();
-            const regex = /^[A-Za-z]+(\s[A-Za-z]+)*$/;
-            
-            if (!value) {
-                error.textContent = 'Full name is required.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            if (value.length < 3 || value.length > 100) {
-                error.textContent = 'Name must be 3-100 characters.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            if (!regex.test(value)) {
-                error.textContent = 'Only letters and single spaces between names allowed.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            error.style.display = 'none';
-            input.value = value;
-            return true;
-        }
-
-        function validateEmail() {
-            const input = document.getElementById('email');
-            const error = document.getElementById('error-email');
-            const value = input.value.trim();
-            const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            
-            if (!value) {
-                error.textContent = 'Email is required.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            if (value.length > 50) {
-                error.textContent = 'Email must be 50 characters or less.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            if (!regex.test(value)) {
-                error.textContent = 'Please enter a valid email address.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            error.style.display = 'none';
-            input.value = value;
-            return true;
-        }
-
-        function validatePassword() {
-            const input = document.getElementById('password');
-            const error = document.getElementById('error-password');
-            const value = input.value;
-            
-            if (!value) {
-                error.textContent = 'Password is required.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            if (value.length < 8 || value.length > 30) {
-                error.textContent = 'Password must be 8-30 characters.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            if (/\s/.test(value)) {
-                error.textContent = 'Password cannot contain spaces.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            if (!/[A-Za-z]/.test(value) || !/[0-9]/.test(value)) {
-                error.textContent = 'Password must contain letters and numbers.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            error.style.display = 'none';
-            return true;
-        }
-
-        function validateBonusAmount() {
-            const input = document.getElementById('bonus-amount');
-            const error = document.getElementById('error-amount');
-            const value = parseFloat(input.value);
-            
-            if (!input.value) {
-                error.textContent = 'Bonus amount is required.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            if (isNaN(value) || value < 1000 || value > 100000) {
-                error.textContent = 'Bonus must be between ₹1,000 and ₹100,000.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            error.style.display = 'none';
-            return true;
-        }
-
-        function validateMonth() {
-            const input = document.getElementById('month');
-            const error = document.getElementById('error-month');
-            const value = input.value;
-            
-            if (!value) {
-                error.textContent = 'Month is required.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            const [year, month] = value.split('-').map(Number);
-            const now = new Date();
-            const maxDate = new Date(now.getFullYear(), now.getMonth(), 1);
-            const selectedDate = new Date(year, month - 1, 1);
-            
-            if (selectedDate < new Date(2021, 0, 1) || selectedDate >= maxDate) {
-                error.textContent = 'Month must be between Jan 2021 and last month.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            error.style.display = 'none';
-            return true;
-        }
-
-        function validateReason() {
-            const input = document.getElementById('reason');
-            const error = document.getElementById('error-reason');
-            const value = input.value;
-            
-            if (!value) {
-                error.textContent = 'Reason is required.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            if (value.length < 10 || value.length > 500) {
-                error.textContent = 'Reason must be 10-500 characters.';
-                error.style.display = 'block';
-                return false;
-            }
-            
-            error.style.display = 'none';
-            return true;
-        }
-
-        function validateForm() {
-            return [
-                validateEmployeeId(),
-                validateName(),
-                validateEmail(),
-                validatePassword(),
-                validateBonusAmount(),
-                validateMonth(),
-                validateReason()
-            ].every(valid => valid);
-        }
-
-        async function submitBonus() {
-            const submitBtn = document.getElementById('submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Processing...';
-            
-            if (!validateForm()) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Assign Bonus';
-                alert('Please correct the errors in the form.');
-                return;
-            }
-
-            const data = {
-                employeeId: document.getElementById('employeeId').value.trim().toUpperCase(),
-                name: document.getElementById('name').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                password: document.getElementById('password').value,
-                bonusAmount: parseFloat(document.getElementById('bonus-amount').value),
-                month: document.getElementById('month').value,
-                reason: document.getElementById('reason').value.trim()
-            };
-
-            try {
-                const response = await fetch('http://localhost:3000/api/hr/bonus', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    alert('Bonus assigned successfully!');
-                    document.getElementById('bonus-form').reset();
-                    fetchBonuses();
-                } else {
-                    alert(result.message || 'Error assigning bonus. Please try again.');
-                }
-            } catch (err) {
-                console.error('Error submitting bonus:', err);
-                alert('Error connecting to server. Please try again later.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Assign Bonus';
-            }
-        }
-
-        async function fetchBonuses() {
-            const tbody = document.getElementById('bonus-table-body');
-            tbody.innerHTML = '<tr><td colspan="7">Loading bonuses...</td></tr>';
-            
-            try {
-                const response = await fetch('http://localhost:3000/api/hr/bonuses');
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                
-                const bonuses = await response.json();
-                displayBonuses(bonuses);
-            } catch (err) {
-                console.error('Error fetching bonuses:', err);
-                tbody.innerHTML = '<tr><td colspan="7">Unable to load bonuses. Please try again later.</td></tr>';
-            }
-        }
-
-        function displayBonuses(bonuses) {
-            const tbody = document.getElementById('bonus-table-body');
-            tbody.innerHTML = '';
-            
-            if (!bonuses || bonuses.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="no-bonuses">No bonuses found.</td></tr>';
-                return;
-            }
-
-            bonuses.forEach(bonus => {
-                const row = document.createElement('tr');
-                const monthDisplay = bonus.month ? new Date(bonus.month + '-01').toLocaleString('default', { month: 'long', year: 'numeric' }) : 'N/A';
-                const bonusAmount = parseFloat(bonus.bonusAmount) || 0;
-                const employeeId = bonus.employeeId && bonus.employeeId.match(/^ATS0\d{3}$/i) ? bonus.employeeId : 'N/A (Invalid)';
-                const isInvalid = !bonus.employeeId || bonus.employeeId === '' || bonusAmount < 1000;
-
-                row.innerHTML = `
-                    <td class="${isInvalid ? 'invalid-data' : ''}">${escapeHtml(employeeId)}</td>
-                    <td>${escapeHtml(bonus.name || 'N/A')}</td>
-                    <td>${escapeHtml(bonus.email || 'N/A')}</td>
-                    <td class="${isInvalid ? 'invalid-data' : ''}">₹${bonusAmount.toFixed(2)}</td>
-                    <td>${monthDisplay}</td>
-                    <td>${truncateText(escapeHtml(bonus.reason || 'N/A'), 30)}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="view-btn" data-bonus='${JSON.stringify(bonus)}'>View</button>
-                            <button class="download-btn" data-bonus-id="${bonus.id}" ${isInvalid ? 'disabled' : ''}>Download</button>
+            <section class="tab-content active" id="generateTab">
+                <div class="card">
+                    <h2 class="card-title">Generate Bonus</h2>
+                    <form id="bonusForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employeeId" class="form-label">Employee ID</label>
+                                <input type="text" id="employeeId" class="form-control" placeholder="ATS0xxx" minlength="7" maxlength="7" required>
+                                <div class="invalid-feedback">Employee ID must be ATS0 followed by 3 digits (ATS0xxx)</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="employeeName" class="form-label">Employee Name</label>
+                                <input type="text" id="employeeName" class="form-control" placeholder="Employee Name" minlength="3" maxlength="40" required>
+                                <div class="invalid-feedback">Name must contain letters and single spaces</div>
+                            </div>
                         </div>
-                    </td>
-                `;
-                
-                if (isInvalid) {
-                    console.warn(`Invalid bonus data: ID=${bonus.id}, employeeId=${bonus.employeeId}, bonusAmount=${bonus.bonusAmount}, email=${bonus.email}`);
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employeeEmail" class="form-label">Employee Email</label>
+                                <input type="email" id="employeeEmail" class="form-control" placeholder="Employee Email" minlength="3" maxlength="40" required>
+                                <div class="invalid-feedback">Please enter a valid email address</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="monthYear" class="form-label">Month & Year</label>
+                                <input type="month" id="monthYear" class="form-control" min="2021-01" max="2025-05" required>
+                                <div class="invalid-feedback">Select a month/year between Jan 2021 and May 2025</div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="bonusType" class="form-label">Bonus Type</label>
+                                <select id="bonusType" class="form-control" required>
+                                    <option value="" disabled selected>Select Bonus Type</option>
+                                    <option value="Performance">Performance</option>
+                                    <option value="Festival">Festival</option>
+                                    <option value="Project Completion">Project Completion</option>
+                                    <option value="Retention">Retention</option>
+                                    <option value="Referral">Referral</option>
+                                </select>
+                                <div class="invalid-feedback">Please select a bonus type</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="bonusAmount" class="form-label">Bonus Amount (₹)</label>
+                                <input type="text" id="bonusAmount" class="form-control" inputmode="numeric" required>
+                                <div class="invalid-feedback">Amount must be a positive number</div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="reason" class="form-label">Reason (Optional)</label>
+                                <textarea id="reason" class="form-control" maxlength="200" placeholder="Reason for bonus"></textarea>
+                                <div class="invalid-feedback">Reason must be 200 characters or less</div>
+                            </div>
+                            <div class="form-group"></div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button type="reset" class="btn btn-secondary">Reset</button>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">Generate Bonus</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section class="tab-content" id="detailsTab">
+                <div class="card">
+                    <h2 class="card-title">Bonus History</h2>
+                    <div class="search-filter">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search by employee name or ID">
+                        </div>
+                        <div class="filter-group">
+                            <select id="monthFilter" class="form-control">
+                                <option value="">All Months</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                            <select id="yearFilter" class="form-control">
+                                <option value="">All Years</option>
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                                <option value="2021">2021</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Bonus ID</th>
+                                    <th>Employee ID</th>
+                                    <th>Employee Name</th>
+                                    <th>Bonus Type</th>
+                                    <th>Month/Year</th>
+                                    <th>Amount (₹)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bonusHistory"></tbody>
+                        </table>
+                    </div>
+                    <div class="no-records" id="noRecords" style="display: none;">
+                        <i class="fas fa-file-alt"></i>
+                        <h3>No records found</h3>
+                        <p>Generate a new bonus to see it appear here</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const { jsPDF } = window.jspdf;
+            const logoImg = new Image();
+            logoImg.crossOrigin = 'Anonymous';
+            logoImg.src = './logo.png';
+
+            let isSubmitting = false;
+
+            // Number to words conversion
+            function numberToWords(num) {
+                if (num === 0) return 'Zero Only';
+                if (num > 9999999) return 'Amount too large';
+
+                const ones = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+                const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+                const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+                function convertHundreds(n) {
+                    let str = '';
+                    if (n > 99) {
+                        str += ones[Math.floor(n / 100)] + ' Hundred';
+                        n %= 100;
+                        if (n > 0) str += ' and ';
+                    }
+                    if (n > 19) {
+                        str += tens[Math.floor(n / 10)];
+                        n %= 10;
+                        if (n > 0) str += ' ' + ones[n];
+                    } else if (n > 9) {
+                        str += teens[n - 10];
+                    } else if (n > 0) {
+                        str += ones[n];
+                    }
+                    return str;
                 }
 
-                row.querySelector('.view-btn').addEventListener('click', () => {
-                    viewBonus(JSON.parse(row.querySelector('.view-btn').dataset.bonus));
+                let str = '';
+                let lakh = Math.floor(num / 100000);
+                num %= 100000;
+                let thousand = Math.floor(num / 1000);
+                num %= 1000;
+
+                if (lakh > 0) {
+                    str += convertHundreds(lakh) + ' Lakh';
+                    if (thousand > 0 || num > 0) str += ' ';
+                }
+                if (thousand > 0) {
+                    str += convertHundreds(thousand) + ' Thousand';
+                    if (num > 0) str += ' ';
+                }
+                if (num > 0) {
+                    str += convertHundreds(num);
+                }
+
+                return str.trim() + ' Only';
+            }
+
+            // Tab navigation
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                    button.classList.add('active');
+                    document.getElementById(button.dataset.id + 'Tab').classList.add('active');
+                    if (button.dataset.id === 'details') {
+                        loadBonusHistory();
+                    }
                 });
-                
-                if (!isInvalid) {
-                    row.querySelector('.download-btn').addEventListener('click', () => {
-                        downloadBonus(bonus.id);
-                    });
-                }
-                
-                tbody.appendChild(row);
             });
-        }
 
-        function viewBonus(bonus) {
-            const modal = document.getElementById('modal-bonus');
-            const monthDisplay = bonus.month ? new Date(bonus.month + '-01').toLocaleString('default', { month: 'long', year: 'numeric' }) : 'N/A';
-            const bonusAmount = parseFloat(bonus.bonusAmount) || 0;
-            const employeeId = bonus.employeeId && bonus.employeeId.match(/^ATS0\d{3}$/i) ? bonus.employeeId : 'N/A (Invalid)';
+            // Form elements
+            const bonusForm = document.getElementById('bonusForm');
+            const employeeIdInput = document.getElementById('employeeId');
+            const employeeNameInput = document.getElementById('employeeName');
+            const employeeEmailInput = document.getElementById('employeeEmail');
+            const monthYearInput = document.getElementById('monthYear');
+            const bonusTypeInput = document.getElementById('bonusType');
+            const bonusAmountInput = document.getElementById('bonusAmount');
+            const reasonInput = document.getElementById('reason');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const submitBtn = document.getElementById('submitBtn');
 
-            document.getElementById('modal-id').textContent = employeeId;
-            document.getElementById('modal-name').textContent = bonus.name || 'N/A';
-            document.getElementById('modal-email').textContent = bonus.email || 'N/A';
-            document.getElementById('modal-amount').textContent = `₹${bonusAmount.toFixed(2)}`;
-            document.getElementById('modal-month').textContent = monthDisplay;
-            document.getElementById('modal-reason').textContent = bonus.reason || 'N/A';
+            // Set current month as default
+            const today = new Date();
+            monthYearInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
 
-            modal.style.display = 'flex';
-        }
+            // Validations
+            employeeIdInput.addEventListener('input', () => {
+                const isValid = /^ATS0[0-9]{3}$/.test(employeeIdInput.value) && employeeIdInput.value !== 'ATS0000';
+                employeeIdInput.classList.toggle('is-invalid', !isValid);
+            });
 
-        function downloadBonus(bonusId) {
-            window.location.href = `http://localhost:3000/api/bonus/pdf/${bonusId}`;
-        }
+            employeeNameInput.addEventListener('input', () => {
+                const isValid = /^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/.test(employeeNameInput.value);
+                employeeNameInput.classList.toggle('is-invalid', !isValid);
+            });
 
-        function escapeHtml(str) {
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
+            employeeEmailInput.addEventListener('input', () => {
+                const isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|in|org|co\.in)$/i.test(employeeEmailInput.value);
+                employeeEmailInput.classList.toggle('is-invalid', !isValid);
+            });
 
-        function truncateText(text, maxLength) {
-            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-        }
+            monthYearInput.addEventListener('input', () => {
+                const value = monthYearInput.value;
+                const date = value ? new Date(value + '-01') : null;
+                const isValid = date && date >= new Date('2021-01-01') && date <= new Date('2025-05-01');
+                monthYearInput.classList.toggle('is-invalid', !isValid);
+            });
+
+            bonusTypeInput.addEventListener('change', () => {
+                const isValid = ['Performance', 'Festival', 'Project Completion', 'Retention', 'Referral'].includes(bonusTypeInput.value);
+                bonusTypeInput.classList.toggle('is-invalid', !isValid);
+            });
+
+            bonusAmountInput.addEventListener('input', () => {
+                bonusAmountInput.value = bonusAmountInput.value.replace(/[^0-9.]/g, '');
+                const value = parseFloat(bonusAmountInput.value) || 0;
+                bonusAmountInput.classList.toggle('is-invalid', value <= 0);
+            });
+
+            reasonInput.addEventListener('input', () => {
+                const isValid = reasonInput.value.length <= 200;
+                reasonInput.classList.toggle('is-invalid', !isValid);
+            });
+
+            function validateForm() {
+                let isValid = true;
+                const errors = [];
+
+                if (!/^ATS0[0-9]{3}$/.test(employeeIdInput.value) || employeeIdInput.value === 'ATS0000') {
+                    employeeIdInput.classList.add('is-invalid');
+                    errors.push('Invalid Employee ID (format: ATS0XXX)');
+                    isValid = false;
+                }
+
+                if (!/^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/.test(employeeNameInput.value)) {
+                    employeeNameInput.classList.add('is-invalid');
+                    errors.push('Name must contain only letters and single spaces');
+                    isValid = false;
+                }
+
+                if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|in|org|co\.in)$/i.test(employeeEmailInput.value)) {
+                    employeeEmailInput.classList.add('is-invalid');
+                    errors.push('Invalid email format');
+                    isValid = false;
+                }
+
+                const dateValue = monthYearInput.value;
+                const date = dateValue ? new Date(dateValue + '-01') : null;
+                if (!date || date < new Date('2021-01-01') || date > new Date('2025-05-01')) {
+                    monthYearInput.classList.add('is-invalid');
+                    errors.push('Invalid month/year selection');
+                    isValid = false;
+                }
+
+                if (!['Performance', 'Festival', 'Project Completion', 'Retention', 'Referral'].includes(bonusTypeInput.value)) {
+                    bonusTypeInput.classList.add('is-invalid');
+                    errors.push('Please select a valid bonus type');
+                    isValid = false;
+                }
+
+                const bonusAmount = parseFloat(bonusAmountInput.value) || 0;
+                if (bonusAmount <= 0) {
+                    bonusAmountInput.classList.add('is-invalid');
+                    errors.push('Bonus amount must be positive');
+                    isValid = false;
+                }
+
+                if (reasonInput.value.length > 200) {
+                    reasonInput.classList.add('is-invalid');
+                    errors.push('Reason must be 200 characters or less');
+                    isValid = false;
+                }
+
+                return { isValid, errors };
+            }
+
+            // Form submission
+            bonusForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (isSubmitting) return;
+
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+
+                const { isValid, errors } = validateForm();
+                if (!isValid) {
+                    errorMessage.textContent = `Please correct: ${errors.join(', ')}`;
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+
+                isSubmitting = true;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+                const formData = {
+                    employee_id: employeeIdInput.value,
+                    employee_name: employeeNameInput.value,
+                    employee_email: employeeEmailInput.value,
+                    month_year: new Date(monthYearInput.value + '-01').toLocaleString('en-US', { month: 'long', year: 'numeric' }),
+                    bonus_type: bonusTypeInput.value,
+                    amount: parseFloat(bonusAmountInput.value) || 0,
+                    reason: reasonInput.value || ''
+                };
+
+                try {
+                    const response = await fetch('http://localhost:3000/api/bonus', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Failed to submit bonus');
+                    }
+
+                    successMessage.style.display = 'flex';
+                    setTimeout(() => successMessage.style.display = 'none', 3000);
+
+                    bonusForm.reset();
+                    document.querySelectorAll('.form-control').forEach(input => input.classList.remove('is-invalid'));
+                    monthYearInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+                    bonusTypeInput.value = '';
+
+                    if (document.getElementById('detailsTab').classList.contains('active')) {
+                        loadBonusHistory();
+                    }
+                } catch (err) {
+                    console.error('Submission error:', err);
+                    errorMessage.textContent = err.message;
+                    errorMessage.style.display = 'block';
+                } finally {
+                    isSubmitting = false;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Generate Bonus';
+                }
+            });
+
+            async function loadBonusHistory() {
+                try {
+                    const search = document.getElementById('searchInput').value;
+                    const month = document.getElementById('monthFilter').value;
+                    const year = document.getElementById('yearFilter').value;
+
+                    const params = new URLSearchParams();
+                    if (search) params.append('search', search);
+                    if (month) params.append('month', month);
+                    if (year) params.append('year', year);
+
+                    const url = `http://localhost:3000/api/bonus/history?${params.toString()}`;
+                    const response = await fetch(url);
+
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch bonus history');
+                    }
+
+                    const bonuses = await response.json();
+                    displayBonuses(bonuses);
+                } catch (err) {
+                    console.error('Error:', err);
+                    errorMessage.textContent = err.message;
+                    errorMessage.style.display = 'block';
+                }
+            }
+
+            function displayBonuses(bonuses) {
+                const historyBody = document.getElementById('bonusHistory');
+                const noRecords = document.getElementById('noRecords');
+
+                historyBody.innerHTML = '';
+                noRecords.style.display = bonuses.length === 0 ? 'block' : 'none';
+
+                bonuses.forEach(bonus => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${bonus.bonus_id}</td>
+                        <td>${bonus.employee_id}</td>
+                        <td>${bonus.employee_name}</td>
+                        <td>${bonus.bonus_type}</td>
+                        <td>${bonus.month_year}</td>
+                        <td>₹${bonus.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary download-btn">Download</button>
+                        </td>
+                    `;
+                    row.querySelector('.download-btn').addEventListener('click', () => downloadBonusAsPDF(bonus));
+                    historyBody.appendChild(row);
+                });
+            }
+
+            async function downloadBonusAsPDF(bonus) {
+                try {
+                    const amount = Number(bonus.amount);
+                    const amountWords = numberToWords(Math.floor(amount));
+                    const monthYear = bonus.month_year;
+
+                    const docContent = document.createElement('div');
+                    docContent.className = 'pdf-content';
+                    docContent.style.padding = '10mm';
+                    docContent.style.width = '210mm';
+                    docContent.style.backgroundColor = '#fff';
+                    docContent.style.boxSizing = 'border-box';
+                    docContent.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5mm;">
+                            <div>
+                                <p style="font-weight: bold; font-size: 9pt; margin: 0;">Astrolite Tech Solutions Pvt Ltd</p>
+                                <p style="font-size: 7pt; margin: 1mm 0 0;">Plot No 65, Flat No 201, 2nd Floor,</p>
+                                <p style="font-size: 7pt; margin: 0;">Siddivinayaka Nagar, Survey of India,</p>
+                                <p style="font-size: 7pt; margin: 0;">Madhapur, Hyderabad - 500081</p>
+                            </div>
+                            <img src="${logoImg.src}" style="height: 15mm; max-width: 35mm;" alt="Company Logo">
+                        </div>
+                        <hr style="border: 0.2mm solid #ccc; margin: 3mm 0;">
+                        <h2 style="text-align: center; font-size: 12pt; color: #333; margin: 0;">Bonus Slip for ${monthYear}</h2>
+                        <div style="margin: 5mm 0; font-size: 7pt;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 50%; vertical-align: top; padding-right: 5mm;">
+                                        <p><strong>Employee ID:</strong> ${bonus.employee_id}</p>
+                                        <p><strong>Name:</strong> ${bonus.employee_name}</p>
+                                        <p><strong>Email:</strong> ${bonus.employee_email}</p>
+                                    </td>
+                                    <td style="width: 50%; vertical-align: top;">
+                                        <p><strong>Bonus ID:</strong> ${bonus.bonus_id}</p>
+                                        <p><strong>Bonus Type:</strong> ${bonus.bonus_type}</p>
+                                        ${bonus.reason ? `<p><strong>Reason:</strong> ${bonus.reason}</p>` : ''}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <table style="width: 100%; border-collapse: collapse; margin: 5mm 0; font-size: 7pt;">
+                            <thead>
+                                <tr>
+                                    <th style="border: 0.2mm solid #ddd; padding: 2mm; background-color: #f8f9fa; text-align: left;">Description</th>
+                                    <th style="border: 0.2mm solid #ddd; padding: 2mm; background-color: #f8f9fa; text-align: right;">Amount (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="border: 0.2mm solid #ddd; padding: 2mm;">Bonus Amount</td>
+                                    <td style="border: 0.2mm solid #ddd; padding: 2mm; text-align: right;">${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="background-color: #f8f9fa; padding: 3mm; border-radius: 2mm; margin-top: 3mm;">
+                            <p style="font-weight: bold; font-size: 9pt; text-align: right; margin: 0;">Total Bonus: ₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
+                            <p style="text-align: right; font-size: 7pt; margin: 1mm 0 0; text-transform: capitalize;">(${amountWords})</p>
+                        </div>
+                        <div style="text-align: center; color: #333; font-size: 7pt; margin-top: 5mm;">
+                            <p style="margin: 0;">This is an auto-generated bonus slip. For queries, contact Astrolite Tech Solutions HR.</p>
+                            <p style="margin: 1mm 0 0;">Astrolite Tech Solutions Pvt Ltd</p>
+                        </div>
+                        <div style="text-align: right; font-size: 6pt; color: #777; margin-top: 5mm;">
+                            <p>Generated on: ${new Date().toLocaleString('en-IN')}</p>
+                        </div>
+                    `;
+                    document.body.appendChild(docContent);
+
+                    const canvas = await html2canvas(docContent, {
+                        scale: 2,
+                        logging: false,
+                        useCORS: true,
+                        allowTaint: true
+                    });
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const imgWidth = 210;
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                    if (imgHeight > 297) {
+                        console.warn('Content may be too tall for A4 page. Adjust layout if truncated.');
+                    }
+
+                    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                    pdf.save(`Bonus_${bonus.bonus_id}_${bonus.employee_id}.pdf`);
+                    document.body.removeChild(docContent);
+                } catch (err) {
+                    console.error('PDF generation error:', err);
+                    errorMessage.textContent = 'Failed to generate PDF';
+                    errorMessage.style.display = 'block';
+                }
+            }
+
+            // Form reset
+            bonusForm.querySelector('button[type="reset"]').addEventListener('click', () => {
+                bonusForm.reset();
+                document.querySelectorAll('.form-control').forEach(input => input.classList.remove('is-invalid'));
+                errorMessage.style.display = 'none';
+                monthYearInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+                bonusTypeInput.value = '';
+            });
+
+            // Search and filter events
+            document.getElementById('searchInput').addEventListener('input', loadBonusHistory);
+            document.getElementById('monthFilter').addEventListener('change', loadBonusHistory);
+            document.getElementById('yearFilter').addEventListener('change', loadBonusHistory);
+
+            // Initial load if on details tab
+            if (document.getElementById('detailsTab').classList.contains('active')) {
+                loadBonusHistory();
+            }
+        });
     </script>
 </body>
 </html>

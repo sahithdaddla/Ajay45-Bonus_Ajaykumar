@@ -1,270 +1,187 @@
 const express = require('express');
 const { Pool } = require('pg');
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
 const cors = require('cors');
-const PDFDocument = require('pdfkit');
-const fs = require('fs');
+const dotenv = require('dotenv');
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
-app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(express.static('public'));
+const port = process.env.PORT || 3000;
 
-// PostgreSQL connection pool
+// Middleware - simplified CORS configuration
+app.use(cors());
+app.use(express.json());
+
+// Database connection configuration
 const pool = new Pool({
-  host: 'localhost',
-  port: 5432,
-  user: 'postgres',
-  password: 'Password@12345',
-  database: 'new_employee_db',
-  max: 10,
-  idleTimeoutMillis: 30000
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || 'Password@12345',
+  database: process.env.DB_NAME || 'new_employee_db',
+  port: process.env.DB_PORT || 5432
 });
+
+// Test database connection
+pool.connect()
+  .then(() => console.log('Connected to PostgreSQL database'))
+  .catch(err => console.error('Database connection failed:', err));
 
 // Initialize database and table
 async function initializeDatabase() {
   try {
-    const tempPool = new Pool({
-      host: 'localhost',
-      port: 5432,
-      user: 'postgres',
-      password: 'Password@12345',
-      database: 'postgres'
-    });
-    const client = await tempPool.connect();
-    await client.query('CREATE DATABASE new_employee_db');
-    client.release();
-    await tempPool.end();
-
-    await pool.query('DROP TABLE IF EXISTS bonus;');
     await pool.query(`
-      CREATE TABLE bonus (
-        id SERIAL PRIMARY KEY,
-        employeeId VARCHAR(7) NOT NULL CHECK (employeeId ~ '^ATS0[0-9]{3}$'),
-        name VARCHAR(100) NOT NULL,
-        email VARCHAR(50) NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        bonusAmount NUMERIC NOT NULL CHECK (bonusAmount >= 1000 AND bonusAmount <= 100000),
-        month VARCHAR(7) NOT NULL CHECK (month ~ '^[0-9]{4}-[0-9]{2}$'),
-        reason VARCHAR(500) NOT NULL,
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
+      drop table if exists bonuses;
+      CREATE TABLE IF NOT EXISTS bonuses (
+        bonus_id VARCHAR(10) PRIMARY KEY,
+        employee_id VARCHAR(7) NOT NULL,
+        employee_name VARCHAR(40) NOT NULL,
+        employee_email VARCHAR(40) NOT NULL,
+        bonus_type VARCHAR(20) NOT NULL CHECK (bonus_type IN ('Performance', 'Festival', 'Project Completion', 'Retention', 'Referral')),
+        amount DECIMAL(10, 2) NOT NULL,
+        month_year VARCHAR(20) NOT NULL,
+        reason VARCHAR(200),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
     `);
-
-    const hashedPassword = await bcrypt.hash('Test1234', 10);
-    await pool.query(`
-      INSERT INTO bonus (employeeId, name, email, password, bonusAmount, month, reason)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-    `, ['ATS0001', 'John Doe', 'john.doe@gmail.com', hashedPassword, 5000, '2025-04', 'Test bonus']);
-
-    console.log('Database and table initialized successfully.');
+    console.log('Bonus table initialized');
   } catch (err) {
-    if (err.code === '42P04') {
-      console.log('Database exists, dropping and recreating bonus table.');
-      try {
-        await pool.query('DROP TABLE IF EXISTS bonus;');
-        await pool.query(`
-          CREATE TABLE bonus (
-            id SERIAL PRIMARY KEY,
-            employeeId VARCHAR(7) NOT NULL CHECK (employeeId ~ '^ATS0[0-9]{3}$'),
-            name VARCHAR(100) NOT NULL,
-            email VARCHAR(50) NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            bonusAmount NUMERIC NOT NULL CHECK (bonusAmount >= 1000 AND bonusAmount <= 100000),
-            month VARCHAR(7) NOT NULL CHECK (month ~ '^[0-9]{4}-[0-9]{2}$'),
-            reason VARCHAR(500) NOT NULL,
-            createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-          );
-        `);
-
-        const hashedPassword = await bcrypt.hash('Test1234', 10);
-        await pool.query(`
-          INSERT INTO bonus (employeeId, name, email, password, bonusAmount, month, reason)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
-        `, ['ATS0001', 'John Doe', 'john.doe@gmail.com', hashedPassword, 5000, '2025-04', 'Test bonus']);
-
-        console.log('Table created and populated successfully.');
-      } catch (tableErr) {
-        console.error('Error initializing table:', tableErr.message);
-        process.exit(1);
-      }
-    } else {
-      console.error('Error initializing database:', err.message);
-      process.exit(1);
-    }
+    console.error('Database initialization failed:', err);
   }
 }
 
-// HR: Submit bonus
-app.post('/api/hr/bonus', async (req, res) => {
-  const { employeeId, name, email, password, bonusAmount, month, reason } = req.body;
+initializeDatabase();
 
-  // Validate inputs
-  if (!employeeId || !employeeId.match(/^ATS0\d{3}$/i)) {
-    return res.status(400).json({ message: 'Invalid Employee ID. Must be in format ATS0XXX (e.g., ATS0001).' });
+// Generate unique bonus ID
+async function generateBonusId() {
+  const { rows } = await pool.query('SELECT bonus_id FROM bonuses ORDER BY bonus_id DESC LIMIT 1');
+  let newId = 'BON0001';
+  if (rows.length > 0) {
+    const lastId = rows[0].bonus_id;
+    const num = parseInt(lastId.replace('BON', '')) + 1;
+    newId = `BON${String(num).padStart(4, '0')}`;
   }
-  if (!name || name.trim().length < 3 || name.trim().length > 100) {
-    return res.status(400).json({ message: 'Name must be between 3 and 100 characters.' });
-  }
-  if (!email || !email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
-    return res.status(400).json({ message: 'Invalid email address.' });
-  }
-  if (!password || password.trim().length < 8) {
-    return res.status(400).json({ message: 'Password must be at least 8 characters.' });
-  }
-  const parsedBonusAmount = parseFloat(bonusAmount);
-  if (isNaN(parsedBonusAmount) || parsedBonusAmount < 1000 || parsedBonusAmount > 100000) {
-    return res.status(400).json({ message: 'Bonus amount must be between 1000 and 100000.' });
-  }
-  if (!month || !month.match(/^\d{4}-\d{2}$/)) {
-    return res.status(400).json({ message: 'Invalid month format. Use YYYY-MM.' });
-  }
-  if (!reason || reason.trim().length < 10 || reason.trim().length > 500) {
-    return res.status(400).json({ message: 'Reason must be between 10 and 500 characters.' });
+  return newId;
+}
+
+// Validate input data
+function validateBonusData(data) {
+  const errors = [];
+
+  if (!/^ATS0[0-9]{3}$/.test(data.employee_id) || data.employee_id === 'ATS0000') {
+    errors.push('Invalid employee ID (format: ATS0XXX)');
   }
 
+  if (!/^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/.test(data.employee_name) || data.employee_name.length < 3 || data.employee_name.length > 40) {
+    errors.push('Invalid employee name (letters, spaces, 3-40 chars)');
+  }
+
+  if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|in|org|co\.in)$/i.test(data.employee_email)) {
+    errors.push('Invalid email format');
+  }
+
+  if (!['Performance', 'Festival', 'Project Completion', 'Retention', 'Referral'].includes(data.bonus_type)) {
+    errors.push('Invalid bonus type');
+  }
+
+  if (isNaN(data.amount) || data.amount <= 0) {
+    errors.push('Amount must be a positive number');
+  }
+
+  if (!data.month_year || !/^[A-Za-z]+ [0-9]{4}$/.test(data.month_year)) {
+    errors.push('Invalid month/year format (e.g., January 2025)');
+  }
+
+  if (data.reason && data.reason.length > 200) {
+    errors.push('Reason must be 200 characters or less');
+  }
+
+  return errors;
+}
+
+// Create bonus endpoint
+app.post('/api/bonus', async (req, res) => {
   try {
-    const hashedPassword = await bcrypt.hash(password.trim(), 10);
-    const result = await pool.query(
-      'INSERT INTO bonus (employeeId, name, email, password, bonusAmount, month, reason) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
-      [employeeId.toUpperCase(), name.trim(), email.trim(), hashedPassword, parsedBonusAmount, month, reason.trim()]
-    );
-    res.status(201).json({ message: 'Bonus assigned successfully.', bonusId: result.rows[0].id });
-  } catch (err) {
-    console.error('Error submitting bonus:', err.message);
-    res.status(500).json({ message: 'Server error.' });
-  }
-});
+    const errors = validateBonusData(req.body);
+    if (errors.length > 0) {
+      return res.status(400).json({ error: errors.join(', ') });
+    }
 
-// HR: Get all bonuses
-app.get('/api/hr/bonuses', async (req, res) => {
-  try {
-    const { rows } = await pool.query('SELECT id, employeeId, name, email, bonusAmount::FLOAT AS bonusAmount, month, reason, createdAt FROM bonus ORDER BY createdAt DESC');
-    console.log('Fetched bonuses:', rows);
-    res.json(rows);
-  } catch (err) {
-    console.error('Error fetching bonuses:', err.message);
-    res.status(500).json({ message: 'Server error.' });
-  }
-});
-
-// Employee: Check bonus
-app.post('/api/employee/check-bonus', async (req, res) => {
-  const { employeeId, month } = req.body;
-
-  if (!employeeId || !employeeId.match(/^ATS0\d{3}$/i)) {
-    return res.status(400).json({ message: 'Invalid Employee ID. Must be in format ATS0XXX.' });
-  }
-  if (!month || !month.match(/^\d{4}-\d{2}$/)) {
-    return res.status(400).json({ message: 'Invalid month format. Use YYYY-MM.' });
-  }
-
-  try {
+    const bonusId = await generateBonusId();
     const { rows } = await pool.query(
-      'SELECT id, employeeId, name, bonusAmount::FLOAT AS bonusAmount, month, reason FROM bonus WHERE UPPER(employeeId) = $1 AND month = $2',
-      [employeeId.toUpperCase(), month]
+      `INSERT INTO bonuses (
+        bonus_id, employee_id, employee_name, employee_email, 
+        bonus_type, amount, month_year, reason
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [
+        bonusId,
+        req.body.employee_id,
+        req.body.employee_name,
+        req.body.employee_email,
+        req.body.bonus_type,
+        req.body.amount,
+        req.body.month_year,
+        req.body.reason || null
+      ]
     );
 
-    if (rows.length === 0) {
-      console.log(`No bonus found for employeeId: ${employeeId}, month: ${month}`);
-      return res.status(404).json({ message: 'No bonuses found for this month.' });
-    }
-
-    res.json(rows);
+    res.status(201).json({ 
+      message: 'Bonus created successfully', 
+      bonus: rows[0] 
+    });
   } catch (err) {
-    console.error('Error checking bonus:', err.message);
-    res.status(500).json({ message: 'Server error.' });
+    console.error('Error creating bonus:', err);
+    res.status(500).json({ error: 'Failed to create bonus' });
   }
 });
 
-// Generate Professional PDF Bonus Slip
-app.get('/api/bonus/pdf/:id', async (req, res) => {
+// Get bonus history endpoint
+app.get('/api/bonus/history', async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT id, employeeId, name, email, bonusAmount::FLOAT AS bonusAmount, month, reason FROM bonus WHERE id = $1', [req.params.id]);
-    if (rows.length === 0) {
-      return res.status(404).json({ message: 'Bonus not found.' });
+    const { employee_id, month, year, search } = req.query;
+    let query = 'SELECT * FROM bonuses WHERE 1=1';
+    const params = [];
+    let paramCount = 1;
+
+    if (employee_id) {
+      query += ` AND employee_id = $${paramCount++}`;
+      params.push(employee_id);
     }
 
-    const bonus = rows[0];
-    const doc = new PDFDocument({ size: 'A4', margin: 50 });
-    const fileName = `Astrolite Tech Solutions Bonus_Slip_${bonus.employeeId}_${bonus.month}.pdf`;
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-    doc.pipe(res);
-
-    const logoPath = './Bonus_AjayKumar/Upload/logo.png';
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, 50, 45, { width: 50 });
-    } else {
-      console.warn('Logo file not found, skipping image.');
-      doc.fontSize(10)
-         .fillColor('#444444')
-         .text('Logo not available', 50, 45);
+    if (month && year) {
+      query += ` AND EXTRACT(MONTH FROM TO_DATE(month_year, 'Month YYYY')) = $${paramCount++}`;
+      query += ` AND EXTRACT(YEAR FROM TO_DATE(month_year, 'Month YYYY')) = $${paramCount++}`;
+      params.push(parseInt(month), parseInt(year));
+    } else if (year) {
+      query += ` AND EXTRACT(YEAR FROM TO_DATE(month_year, 'Month YYYY')) = $${paramCount++}`;
+      params.push(parseInt(year));
     }
 
-    doc.fillColor('#444444')
-       .fontSize(20)
-       .text('AStrolite Tech Solutions', 110, 50)
-       .fontSize(10)
-       .text('Hyderabad Branch', 110, 75)
-       .moveDown();
+    if (search) {
+      query += ` AND (employee_id LIKE $${paramCount++} OR employee_name LIKE $${paramCount++})`;
+      params.push(`%${search}%`, `%${search}%`);
+    }
 
-    doc.fontSize(16)
-       .fillColor('#5f1aff')
-       .text('BONUS PAYMENT SLIP', { align: 'center' })
-       .moveDown();
+    query += ' ORDER BY created_at DESC';
 
-    doc.strokeColor('#aaaaaa')
-       .lineWidth(1)
-       .moveTo(50, 120)
-       .lineTo(550, 120)
-       .stroke();
-
-    doc.fontSize(12)
-       .fillColor('#333333')
-       .text(`Employee ID: ${bonus.employeeId || 'N/A'}`, 50, 140)
-       .text(`Employee Name: ${bonus.name || 'N/A'}`, 50, 160)
-       .text(`Month: ${bonus.month ? new Date(bonus.month + '-01').toLocaleString('default', { month: 'long', year: 'numeric' }) : 'N/A'}`, 50, 180)
-       .moveDown();
-
-    doc.rect(50, 220, 500, 100)
-       .fill('#f8f9fa')
-       .stroke('#e0e0e0')
-       .fillAndStroke();
-
-    doc.fontSize(14)
-       .fillColor('#5f1aff')
-       .text('BONUS DETAILS', 60, 230);
-
-    doc.fontSize(12)
-       .fillColor('#333333')
-       .text(`Amount: ₹${bonus.bonusAmount != null ? bonus.bonusAmount.toFixed(2) : '0.00'}`, 60, 260)
-       .text(`Reason: ${bonus.reason || 'N/A'}`, 60, 280)
-       .moveDown();
-
-    doc.fontSize(10)
-       .fillColor('#777777')
-       .text('This is an official document from Astrolite Tech Solutions, Hyderabad Branch.', 50, 350, { align: 'center' })
-       .text('Generated on: ' + new Date().toLocaleDateString(), 50, 370, { align: 'center' });
-
-    doc.end();
+    const { rows } = await pool.query(query, params);
+    res.status(200).json(rows);
   } catch (err) {
-    console.error('Error generating PDF:', err.message);
-    if (!res.headersSent) {
-      res.status(500).json({ message: 'Error generating PDF.' });
-    }
+    console.error('Error fetching bonus history:', err);
+    res.status(500).json({ error: 'Failed to fetch bonus history' });
   }
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK' });
 });
 
 // Start server
-initializeDatabase().then(() => {
-  app.listen(3000, () => {
-    console.log('Server running on http://localhost:3000');
-  });
-}).catch(err => {
-  console.error('Failed to start server:', err.message);
-  process.exit(1);
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled rejection:', err);
 });
