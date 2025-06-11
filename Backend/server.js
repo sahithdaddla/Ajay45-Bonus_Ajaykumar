@@ -31,7 +31,6 @@ pool.connect()
 async function initializeDatabase() {
   try {
     await pool.query(`
-      drop table if exists bonuses;
       CREATE TABLE IF NOT EXISTS bonuses (
         bonus_id VARCHAR(10) PRIMARY KEY,
         employee_id VARCHAR(7) NOT NULL,
