@@ -7,7 +7,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3222;
 
 // Middleware - simplified CORS configuration
 app.use(cors());
@@ -15,9 +15,9 @@ app.use(express.json());
 
 // Database connection configuration
 const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
+  host: process.env.DB_HOST || 'postgres',
   user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'Password@12345',
+  password: process.env.DB_PASSWORD || 'admin123',
   database: process.env.DB_NAME || 'new_employee_db',
   port: process.env.DB_PORT || 5432
 });
@@ -178,7 +178,7 @@ app.get('/health', (req, res) => {
 
 // Start server
 app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+  console.log(`Server running on http://3.88.203.125:${port}`);
 });
 
 process.on('unhandledRejection', (err) => {
