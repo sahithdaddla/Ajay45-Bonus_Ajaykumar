@@ -33,9 +33,9 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 10px;
         }
 
         header {
@@ -43,7 +43,7 @@
             text-align: center;
             height: 110px;
             background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: #f8f9fa;
+            color: #ffffff;
             border-radius: 16px;
             overflow: hidden;
             display: flex;
@@ -330,19 +330,19 @@
                         </div>
                         <div class="form-group">
                             <label for="employeeEmail" class="form-label">Employee Email</label>
-                            <input type="email" id="employeeEmail" class="form-control" placeholder="employee@example.com" required>
-                            <div class="invalid-feedback">Please enter a valid email address</div>
+                            <input type="email" id="employeeEmail" class="form-control" placeholder="employee@astrolitetech.com" required>
+                            <div class="invalid-feedback">Please enter a valid @astrolitetech.com email address</div>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="startMonth" class="form-label">Start Month</label>
-                            <input type="month" id="startMonth" class="form-control" min="2021-01" max="2025-05" required>
+                            <input type="month" id="startMonth" class="form-control" min="2021-01" required>
                             <div class="invalid-feedback">Please select a valid start month</div>
                         </div>
                         <div class="form-group">
                             <label for="endMonth" class="form-label">End Month (Optional)</label>
-                            <input type="month" id="endMonth" class="form-control" min="2021-01" max="2025-05">
+                            <input type="month" id="endMonth" class="form-control" min="2021-01">
                             <div class="invalid-feedback">End month must be after start month</div>
                         </div>
                     </div>
@@ -383,337 +383,342 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const { jsPDF } = window.jspdf;
-              const logoImg = new Image();
-            logoImg.crossOrigin = 'Anonymous';
-            logoImg.src = './logo.png';
+       document.addEventListener('DOMContentLoaded', () => {
+    const { jsPDF } = window.jspdf;
+    const logoImg = new Image();
+    logoImg.crossOrigin = 'Anonymous';
+    logoImg.src = './logo.png';
 
-            let isSubmitting = false;
+    let isSubmitting = false;
 
-            // Set default month to current month
-            const today = new Date();
-            const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-            document.getElementById('startMonth').value = currentMonth;
+    // Set default month to previous month
+    const today = new Date();
+    const prevMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const currentMonth = `${prevMonth.getFullYear()}-${String(prevMonth.getMonth() + 1).padStart(2, '0')}`;
+    const maxMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+    document.getElementById('startMonth').value = currentMonth;
+    document.getElementById('startMonth').max = maxMonth;
+    document.getElementById('endMonth').max = maxMonth;
 
-            // Number to words conversion
-            function numberToWords(num) {
-                if (num === 0) return 'Zero Only';
-                if (num > 9999999) return 'Amount too large';
+    // Number to words conversion
+    function numberToWords(num) {
+        if (num === 0) return 'Zero Only';
+        if (num > 9999999) return 'Amount too large';
 
-                const ones = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-                const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-                const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        const ones = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+        const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
 
-                function convertHundreds(n) {
-                    let str = '';
-                    if (n > 99) {
-                        str += ones[Math.floor(n / 100)] + ' Hundred';
-                        n %= 100;
-                        if (n > 0) str += ' and ';
-                    }
-                    if (n > 19) {
-                        str += tens[Math.floor(n / 10)];
-                        n %= 10;
-                        if (n > 0) str += ' ' + ones[n];
-                    } else if (n > 9) {
-                        str += teens[n - 10];
-                    } else if (n > 0) {
-                        str += ones[n];
-                    }
-                    return str;
-                }
+        function convertHundreds(n) {
+            let str = '';
+            if (n > 99) {
+                str += ones[Math.floor(n / 100)] + ' Hundred';
+                n %= 100;
+                if (n > 0) str += ' and ';
+            }
+            if (n > 19) {
+                str += tens[Math.floor(n / 10)];
+                n %= 10;
+                if (n > 0) str += ' ' + ones[n];
+            } else if (n > 9) {
+                str += teens[n - 10];
+            } else if (n > 0) {
+                str += ones[n];
+            }
+            return str;
+        }
 
-                let str = '';
-                let lakh = Math.floor(num / 100000);
-                num %= 100000;
-                let thousand = Math.floor(num / 1000);
-                num %= 1000;
+        let str = '';
+        let lakh = Math.floor(num / 100000);
+        num %= 100000;
+        let thousand = Math.floor(num / 1000);
+        num %= 1000;
 
-                if (lakh > 0) {
-                    str += convertHundreds(lakh) + ' Lakh';
-                    if (thousand > 0 || num > 0) str += ' ';
-                }
-                if (thousand > 0) {
-                    str += convertHundreds(thousand) + ' Thousand';
-                    if (num > 0) str += ' ';
-                }
-                if (num > 0) {
-                    str += convertHundreds(num);
-                }
+        if (lakh > 0) {
+            str += convertHundreds(lakh) + ' Lakh';
+            if (thousand > 0 || num > 0) str += ' ';
+        }
+        if (thousand > 0) {
+            str += convertHundreds(thousand) + ' Thousand';
+            if (num > 0) str += ' ';
+        }
+        if (num > 0) {
+            str += convertHundreds(num);
+        }
 
-                return str.trim() + ' Only';
+        return str.trim() + ' Only';
+    }
+
+    // Form elements
+    const bonusForm = document.getElementById('bonusForm');
+    const employeeIdInput = document.getElementById('employeeId');
+    const employeeEmailInput = document.getElementById('employeeEmail');
+    const startMonthInput = document.getElementById('startMonth');
+    const endMonthInput = document.getElementById('endMonth');
+    const bonusHistory = document.getElementById('bonusHistory');
+    const noRecords = document.getElementById('noRecords');
+    const successMessage = document.getElementById('successMessage');
+    const successText = document.getElementById('successText');
+    const errorMessage = document.getElementById('errorMessage');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Validations
+    employeeIdInput.addEventListener('input', () => {
+        const isValid = /^ATS0[0-9]{3}$/.test(employeeIdInput.value) && employeeIdInput.value !== 'ATS0000';
+        employeeIdInput.classList.toggle('is-invalid', !isValid);
+    });
+
+    employeeEmailInput.addEventListener('input', () => {
+        const isValid = /^[a-zA-Z0-9._%+-]+@astrolitetech\.com$/i.test(employeeEmailInput.value);
+        employeeEmailInput.classList.toggle('is-invalid', !isValid);
+    });
+
+    startMonthInput.addEventListener('input', validateMonths);
+    endMonthInput.addEventListener('input', validateMonths);
+
+    function validateMonths() {
+        const startDate = new Date(startMonthInput.value + '-01');
+        const endDate = endMonthInput.value ? new Date(endMonthInput.value + '-01') : null;
+        const maxDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        // Validate start month
+        const isValidStart = startDate && startDate >= new Date('2021-01-01') && startDate <= maxDate;
+        startMonthInput.classList.toggle('is-invalid', !isValidStart);
+        
+        // Validate end month if provided
+        if (endDate) {
+            const isValidEnd = endDate >= startDate && endDate <= maxDate;
+            endMonthInput.classList.toggle('is-invalid', !isValidEnd);
+            return isValidStart && isValidEnd;
+        }
+        
+        return isValidStart;
+    }
+
+    function validateForm() {
+        let isValid = true;
+        const errors = [];
+
+        if (!/^ATS0[0-9]{3}$/.test(employeeIdInput.value) || employeeIdInput.value === 'ATS0000') {
+            employeeIdInput.classList.add('is-invalid');
+            errors.push('Invalid Employee ID (format: ATS0XXX)');
+            isValid = false;
+        }
+
+        if (!/^[a-zA-Z0-9._%+-]+@astrolitetech\.com$/i.test(employeeEmailInput.value)) {
+            employeeEmailInput.classList.add('is-invalid');
+            errors.push('Invalid email format (must be @astrolitetech.com)');
+            isValid = false;
+        }
+
+        if (!validateMonths()) {
+            errors.push('Invalid month selection');
+            isValid = false;
+        }
+
+        if (errors.length > 0) {
+            errorMessage.textContent = `Please correct: ${errors.join(', ')}`;
+            errorMessage.style.display = 'block';
+        } else {
+            errorMessage.style.display = 'none';
+        }
+
+        return isValid;
+    }
+
+    // Form submission
+    bonusForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (isSubmitting) return;
+
+        errorMessage.style.display = 'none';
+        successMessage.style.display = 'none';
+
+        if (!validateForm()) {
+            return;
+        }
+
+        isSubmitting = true;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+        try {
+            const params = new URLSearchParams();
+            params.append('employee_id', employeeIdInput.value);
+            params.append('search', employeeIdInput.value);
+
+            // Add month/year filters
+            const startDate = new Date(startMonthInput.value + '-01');
+            params.append('month', startDate.getMonth() + 1);
+            params.append('year', startDate.getFullYear());
+
+            if (endMonthInput.value) {
+                const endDate = new Date(endMonthInput.value + '-01');
+                params.append('end_month', endDate.getMonth() + 1);
+                params.append('end_year', endDate.getFullYear());
             }
 
-            // Form elements
-            const bonusForm = document.getElementById('bonusForm');
-            const employeeIdInput = document.getElementById('employeeId');
-            const employeeEmailInput = document.getElementById('employeeEmail');
-            const startMonthInput = document.getElementById('startMonth');
-            const endMonthInput = document.getElementById('endMonth');
-            const bonusHistory = document.getElementById('bonusHistory');
-            const noRecords = document.getElementById('noRecords');
-            const successMessage = document.getElementById('successMessage');
-            const successText = document.getElementById('successText');
-            const errorMessage = document.getElementById('errorMessage');
-            const submitBtn = document.getElementById('submitBtn');
-
-            // Validations
-            employeeIdInput.addEventListener('input', () => {
-                const isValid = /^ATS0[0-9]{3}$/.test(employeeIdInput.value) && employeeIdInput.value !== 'ATS0000';
-                employeeIdInput.classList.toggle('is-invalid', !isValid);
-            });
-
-            employeeEmailInput.addEventListener('input', () => {
-                const isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i.test(employeeEmailInput.value);
-                employeeEmailInput.classList.toggle('is-invalid', !isValid);
-            });
-
-            startMonthInput.addEventListener('input', validateMonths);
-            endMonthInput.addEventListener('input', validateMonths);
-
-            function validateMonths() {
-                const startDate = new Date(startMonthInput.value + '-01');
-                const endDate = endMonthInput.value ? new Date(endMonthInput.value + '-01') : null;
-                
-                // Validate start month
-                const isValidStart = startDate && startDate >= new Date('2021-01-01') && startDate <= new Date('2025-05-01');
-                startMonthInput.classList.toggle('is-invalid', !isValidStart);
-                
-                // Validate end month if provided
-                if (endDate) {
-                    const isValidEnd = endDate >= startDate && endDate <= new Date('2025-05-01');
-                    endMonthInput.classList.toggle('is-invalid', !isValidEnd);
-                    return isValidStart && isValidEnd;
-                }
-                
-                return isValidStart;
+            const response = await fetch(`http://44.223.23.145:3430/api/bonus/history?${params.toString()}`);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to fetch bonus history');
             }
 
-            function validateForm() {
-                let isValid = true;
-                const errors = [];
+            const bonuses = await response.json();
+            
+            // Filter by email on client-side
+            const filteredBonuses = bonuses.filter(bonus => 
+                bonus.employee_email.toLowerCase() === employeeEmailInput.value.toLowerCase()
+            );
 
-                if (!/^ATS0[0-9]{3}$/.test(employeeIdInput.value) || employeeIdInput.value === 'ATS0000') {
-                    employeeIdInput.classList.add('is-invalid');
-                    errors.push('Invalid Employee ID (format: ATS0XXX)');
-                    isValid = false;
-                }
-
-                if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i.test(employeeEmailInput.value)) {
-                    employeeEmailInput.classList.add('is-invalid');
-                    errors.push('Invalid email format');
-                    isValid = false;
-                }
-
-                if (!validateMonths()) {
-                    errors.push('Invalid month selection');
-                    isValid = false;
-                }
-
-                if (errors.length > 0) {
-                    errorMessage.textContent = `Please correct: ${errors.join(', ')}`;
-                    errorMessage.style.display = 'block';
-                } else {
-                    errorMessage.style.display = 'none';
-                }
-
-                return isValid;
+            displayBonuses(filteredBonuses);
+            
+            if (filteredBonuses.length > 0) {
+                successText.textContent = `Found ${filteredBonuses.length} bonus records`;
+                successMessage.style.display = 'flex';
+            } else {
+                successText.textContent = 'No bonus records found';
+                successMessage.style.display = 'flex';
             }
+        } catch (err) {
+            console.error('Error:', err);
+            errorMessage.textContent = err.message;
+            errorMessage.style.display = 'block';
+        } finally {
+            isSubmitting = false;
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'View History';
+        }
+    });
 
-            // Form submission
-            bonusForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                if (isSubmitting) return;
+    function displayBonuses(bonuses) {
+        bonusHistory.innerHTML = '';
+        noRecords.style.display = bonuses.length === 0 ? 'block' : 'none';
 
-                errorMessage.style.display = 'none';
-                successMessage.style.display = 'none';
-
-                if (!validateForm()) {
-                    return;
-                }
-
-                isSubmitting = true;
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-
-                try {
-                    const params = new URLSearchParams();
-                    params.append('employee_id', employeeIdInput.value);
-                    params.append('search', employeeIdInput.value);
-
-                    // Add month/year filters
-                    const startDate = new Date(startMonthInput.value + '-01');
-                    params.append('month', startDate.getMonth() + 1);
-                    params.append('year', startDate.getFullYear());
-
-                    if (endMonthInput.value) {
-                        const endDate = new Date(endMonthInput.value + '-01');
-                        params.append('end_month', endDate.getMonth() + 1);
-                        params.append('end_year', endDate.getFullYear());
-                    }
-
-                    const response = await fetch(`http://44.223.23.145:3430/api/bonus/history?${params.toString()}`);
-                    
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || 'Failed to fetch bonus history');
-                    }
-
-                    const bonuses = await response.json();
-                    
-                    // Filter by email if needed (remove if not required)
-                    const filteredBonuses = bonuses.filter(bonus => 
-                        bonus.employee_email === employeeEmailInput.value
-                    );
-
-                    displayBonuses(filteredBonuses);
-                    
-                    if (filteredBonuses.length > 0) {
-                        successText.textContent = `Found ${filteredBonuses.length} bonus records`;
-                        successMessage.style.display = 'flex';
-                    } else {
-                        successText.textContent = 'No bonus records found';
-                        successMessage.style.display = 'flex';
-                    }
-                } catch (err) {
-                    console.error('Error:', err);
-                    errorMessage.textContent = err.message;
-                    errorMessage.style.display = 'block';
-                } finally {
-                    isSubmitting = false;
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'View History';
-                }
-            });
-
-            function displayBonuses(bonuses) {
-                bonusHistory.innerHTML = '';
-                noRecords.style.display = bonuses.length === 0 ? 'block' : 'none';
-
-                bonuses.forEach(bonus => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${bonus.bonus_id}</td>
-                        <td>${bonus.employee_id}</td>
-                        <td>${bonus.employee_name}</td>
-                        <td>${bonus.bonus_type}</td>
-                        <td>${bonus.month_year}</td>
-                        <td>₹${Number(bonus.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary download-btn">Download</button>
-                        </td>
-                    `;
-                    row.querySelector('.download-btn').addEventListener('click', () => downloadBonusAsPDF(bonus));
-                    bonusHistory.appendChild(row);
-                });
-            }
-
-            async function downloadBonusAsPDF(bonus) {
-                try {
-                    const amount = Number(bonus.amount);
-                    const amountWords = numberToWords(Math.floor(amount));
-                    const monthYear = bonus.month_year;
-
-                    const docContent = document.createElement('div');
-                    docContent.style.padding = '10mm';
-                    docContent.style.fontFamily = 'Courier, monospace';
-                    docContent.style.width = '210mm';
-                    docContent.style.backgroundColor = '#fff';
-                    docContent.style.boxSizing = 'border-box';
-                    docContent.style.lineHeight = '1.1';
-                    docContent.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5mm;">
-                            <div>
-                                <p style="font-weight: bold; font-size: 9pt; margin: 0;">Astrolite Tech Solutions Pvt Ltd</p>
-                                <p style="font-size: 7pt; margin: 1mm 0 0;">Plot No 65, Flat No 201, 2nd Floor,</p>
-                                <p style="font-size: 7pt; margin: 0;">Siddivinayaka Nagar, Survey of India,</p>
-                                <p style="font-size: 7pt; margin: 0;">Madhapur, Hyderabad - 500081</p>
-                            </div>
-                            <img src="${logoImg.src}" style="height: 15mm; max-width: 35mm;" alt="Company Logo">
-                        </div>
-                        <hr style="border: 0.2mm solid #ccc; margin: 3mm 0;">
-                        <h2 style="text-align: center; font-size: 12pt; color: #333; margin: 0;">Bonus Slip for ${monthYear}</h2>
-                        <div style="margin: 5mm 0; font-size: 7pt;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr>
-                                    <td style="width: 50%; vertical-align: top; padding-right: 5mm;">
-                                        <p><strong>Employee ID:</strong> ${bonus.employee_id}</p>
-                                        <p><strong>Name:</strong> ${bonus.employee_name}</p>
-                                        <p><strong>Email:</strong> ${bonus.employee_email}</p>
-                                    </td>
-                                    <td style="width: 50%; vertical-align: top;">
-                                        <p><strong>Bonus ID:</strong> ${bonus.bonus_id}</p>
-                                        <p><strong>Bonus Type:</strong> ${bonus.bonus_type}</p>
-                                        ${bonus.reason ? `<p><strong>Reason:</strong> ${bonus.reason}</p>` : ''}
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                        <table style="width: 100%; border-collapse: collapse; margin: 5mm 0; font-size: 7pt;">
-                            <thead>
-                                <tr>
-                                    <th style="border: 0.2mm solid #ddd; padding: 2mm; background-color: #f8f9fa; text-align: left;">Description</th>
-                                    <th style="border: 0.2mm solid #ddd; padding: 2mm; background-color: #f8f9fa; text-align: right;">Amount (₹)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="border: 0.2mm solid #ddd; padding: 2mm;">Bonus Amount</td>
-                                    <td style="border: 0.2mm solid #ddd; padding: 2mm; text-align: right;">${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                </tr>
-                                <tr style="font-weight: bold;">
-                                    <td style="border: 0.2mm solid #ddd; padding: 2mm;">Total</td>
-                                    <td style="border: 0.2mm solid #ddd; padding: 2mm; text-align: right;">${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div style="background-color: #f8f9fa; padding: 3mm; border-radius: 2mm; margin-top: 3mm;">
-                            <p style="font-weight: bold; font-size: 9pt; text-align: right; margin: 0;">Total Bonus: ₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
-                            <p style="text-align: right; font-size: 7pt; margin: 1mm 0 0; text-transform: capitalize;">(${amountWords})</p>
-                        </div>
-                        <div style="text-align: center; color: #333; font-size: 7pt; margin-top: 5mm;">
-                            <p style="margin: 0;">This is an auto-generated bonus slip. For queries, contact Astrolite Tech Solutions HR.</p>
-                            <p style="margin: 1mm 0 0;">Astrolite Tech Solutions Pvt Ltd</p>
-                        </div>
-                        <div style="text-align: right; font-size: 6pt; color: #777; margin-top: 5mm;">
-                            <p>Generated on: ${new Date().toLocaleString('en-IN')}</p>
-                        </div>
-                    `;
-                    document.body.appendChild(docContent);
-
-                    const canvas = await html2canvas(docContent, { 
-                        scale: 2,
-                        logging: false,
-                        useCORS: true,
-                        allowTaint: true
-                    });
-                    const imgData = canvas.toDataURL('image/png');
-                    const pdf = new jsPDF('p', 'mm', 'a4');
-                    const imgWidth = 210;
-                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-                    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-                    pdf.save(`Bonus_${bonus.bonus_id}_${bonus.employee_id}.pdf`);
-                    document.body.removeChild(docContent);
-                } catch (err) {
-                    console.error('PDF generation error:', err);
-                    errorMessage.textContent = 'Failed to generate PDF';
-                    errorMessage.style.display = 'block';
-                }
-            }
-
-            // Form reset
-            bonusForm.querySelector('button[type="reset"]').addEventListener('click', () => {
-                bonusForm.reset();
-                bonusHistory.innerHTML = '';
-                noRecords.style.display = 'block';
-                errorMessage.style.display = 'none';
-                successMessage.style.display = 'none';
-                startMonthInput.value = currentMonth;
-                endMonthInput.value = '';
-            });
+        bonuses.forEach(bonus => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${bonus.bonus_id}</td>
+                <td>${bonus.employee_id}</td>
+                <td>${bonus.employee_name}</td>
+                <td>${bonus.bonus_type}</td>
+                <td>${bonus.month_year}</td>
+                <td>₹${Number(bonus.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary download-btn">Download</button>
+                </td>
+            `;
+            row.querySelector('.download-btn').addEventListener('click', () => downloadBonusAsPDF(bonus));
+            bonusHistory.appendChild(row);
         });
+    }
+
+    async function downloadBonusAsPDF(bonus) {
+        try {
+            const amount = Number(bonus.amount);
+            const amountWords = numberToWords(Math.floor(amount));
+            const monthYear = bonus.month_year;
+
+            const docContent = document.createElement('div');
+            docContent.style.padding = '10mm';
+            docContent.style.fontFamily = 'Courier, monospace';
+            docContent.style.width = '210mm';
+            docContent.style.backgroundColor = '#fff';
+            docContent.style.boxSizing = 'border-box';
+            docContent.style.lineHeight = '1.1';
+            docContent.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5mm;">
+                    <div>
+                        <p style="font-weight: bold; font-size: 9pt; margin: 0;">Astrolite Tech Solutions Pvt Ltd</p>
+                        <p style="font-size: 7pt; margin: 1mm 0 0;">Plot No 65, Flat No 201, 2nd Floor,</p>
+                        <p style="font-size: 7pt; margin: 0;">Siddivinayaka Nagar, Survey of India,</p>
+                        <p style="font-size: 7pt; margin: 0;">Madhapur, Hyderabad - 500081</p>
+                    </div>
+                    <img src="${logoImg.src}" style="height: 15mm; max-width: 35mm;" alt="Company Logo">
+                </div>
+                <hr style="border: 0.2mm solid #ccc; margin: 3mm 0;">
+                <h2 style="text-align: center; font-size: 12pt; color: #333; margin: 0;">Bonus Slip for ${monthYear}</h2>
+                <div style="margin: 5mm 0; font-size: 7pt;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 50%; vertical-align: top; padding-right: 5mm;">
+                                <p><strong>Employee ID:</strong> ${bonus.employee_id}</p>
+                                <p><strong>Name:</strong> ${bonus.employee_name}</p>
+                                <p><strong>Email:</strong> ${bonus.employee_email}</p>
+                            </td>
+                            <td style="width: 50%; vertical-align: top;">
+                                <p><strong>Bonus ID:</strong> ${bonus.bonus_id}</p>
+                                <p><strong>Bonus Type:</strong> ${bonus.bonus_type}</p>
+                                ${bonus.reason ? `<p><strong>Reason:</strong> ${bonus.reason}</p>` : ''}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; margin: 5mm 0; font-size: 7pt;">
+                    <thead>
+                        <tr>
+                            <th style="border: 0.2mm solid #ddd; padding: 2mm; background-color: #f8f9fa; text-align: left;">Description</th>
+                            <th style="border: 0.2mm solid #ddd; padding: 2mm; background-color: #f8f9fa; text-align: right;">Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border: 0.2mm solid #ddd; padding: 2mm;">Bonus Amount</td>
+                            <td style="border: 0.2mm solid #ddd; padding: 2mm; text-align: right;">${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                        </tr>
+                        <tr style="font-weight: bold;">
+                            <td style="border: 0.2mm solid #ddd; padding: 2mm;">Total</td>
+                            <td style="border: 0.2mm solid #ddd; padding: 2mm; text-align: right;">${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="background-color: #f8f9fa; padding: 3mm; border-radius: 2mm; margin-top: 3mm;">
+                    <p style="font-weight: bold; font-size: 9pt; text-align: right; margin: 0;">Total Bonus: ₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
+                    <p style="text-align: right; font-size: 7pt; margin: 1mm 0 0; text-transform: capitalize;">(${amountWords})</p>
+                </div>
+                <div style="text-align: center; color: #333; font-size: 7pt; margin-top: 5mm;">
+                    <p style="margin: 0;">This is an auto-generated bonus slip. For queries, contact Astrolite Tech Solutions HR.</p>
+                    <p style="margin: 1mm 0 0;">Astrolite Tech Solutions Pvt Ltd</p>
+                </div>
+                <div style="text-align: right; font-size: 6pt; color: #777; margin-top: 5mm;">
+                    <p>Generated on: ${new Date().toLocaleString('en-IN')}</p>
+                </div>
+            `;
+            document.body.appendChild(docContent);
+
+            const canvas = await html2canvas(docContent, { 
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true
+            });
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgWidth = 210;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+            pdf.save(`Bonus_${bonus.bonus_id}_${bonus.employee_id}.pdf`);
+            document.body.removeChild(docContent);
+        } catch (err) {
+            console.error('PDF generation error:', err);
+            errorMessage.textContent = 'Failed to generate PDF';
+            errorMessage.style.display = 'block';
+        }
+    }
+
+    // Form reset
+    bonusForm.querySelector('button[type="reset"]').addEventListener('click', () => {
+        bonusForm.reset();
+        bonusHistory.innerHTML = '';
+        noRecords.style.display = 'block';
+        errorMessage.style.display = 'none';
+        successMessage.style.display = 'none';
+        startMonthInput.value = currentMonth;
+        endMonthInput.value = '';
+    });
+});
     </script>
 </body>
 </html>

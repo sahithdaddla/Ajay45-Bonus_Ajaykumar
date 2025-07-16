@@ -13,11 +13,6 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
   backend:
     build: ./Backend
@@ -25,31 +20,26 @@ services:
     ports:
       - "3430:3430"
     environment:
-      - PORT=3430
+      - PORT=3222
       - DB_HOST=postgres
       - DB_USER=postgres
       - DB_PASSWORD=admin123
       - DB_NAME=new_employee_db
       - DB_PORT=5432
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
 
   frontend:
     build: ./Frontend
     container_name: frontend11
     ports:
       - "8055:80"
-    depends_on:
-      - backend
 
   hr_page:
     build: ./Hr_page
     container_name: hr_page11
     ports:
       - "8056:80"
-    depends_on:
-      - backend
-
 volumes:
   pgdata:
+
